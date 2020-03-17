@@ -47,9 +47,16 @@ app.route('/api/shorturl/new').post(function(req, res) {
   dns.lookup(sortedURL, function(err, address, family) { // need to take out the 'https://' or 'http://'
     console.log(`error = ${err}`);  // error = null
     console.log(`address = ${address}, family = ${family}`)
-    //to do if error = null
+    if(err === null) {
+      // Response with a shorturl
+      //store data in database with a hash ID
+      // res.json({original_url: req.body.url})
+    } else {
+      // Response with a invalid url
+      res.json({error: "invalid URL"});
+    }
   })
-  res.json({original_url: req.body.url})
+
 });
 
 
