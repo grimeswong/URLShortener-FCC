@@ -13,7 +13,11 @@ var app = express();
 var port = process.env.PORT || 3000;
 
 /** this project needs a db !! **/
-// mongoose.connect(process.env.DB_URI);
+mongoose.connect(process.env.DB_URI, { useNewUrlParser: true })
+  .then(()=> {
+    console.log("Database is connected successfully!");
+  })
+  .catch(error => console.error(`Cannot connect to the database due to ${error}`));
 
 app.use(cors());
 
