@@ -4,6 +4,7 @@ var express = require('express');
 var mongo = require('mongodb');
 var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
+var dns = require('dns');
 require('dotenv').config();
 
 
@@ -39,6 +40,15 @@ app.get('/', function(req, res){
 // your first API endpoint...
 app.route('/api/shorturl/new').post(function(req, res) {
   console.log(req.body.url)
+  var regex = /https?:\/\/|( |w{3}\.)/g;  // replace the protocol and www prefix
+  var sortedURL = req.body.url.replace(regex, '').trim(); // trim the start and end white space
+  console.log(sortedURL);
+  console.log(typeof(sortedURL));
+  dns.lookup(sortedURL, function(err, address, family) { // need to take out the 'https://' or 'http://'
+    console.log(`error = ${err}`);  // error = null
+    console.log(`address = ${address}, family = ${family}`)
+    //to do if error = null
+  })
   res.json({original_url: req.body.url})
 });
 
