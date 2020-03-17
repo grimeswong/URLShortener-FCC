@@ -13,7 +13,7 @@ var app = express();
 var port = process.env.PORT || 3000;
 
 /** this project needs a db !! **/
-mongoose.connect(process.env.DB_URI, { useNewUrlParser: true })
+mongoose.connect(process.env.DB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(()=> {
     console.log("Database is connected successfully!");
   })
