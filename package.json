@@ -7,11 +7,11 @@
 		"start": "nodemon server.js"
 	},
 	"dependencies": {
+		"body-parser": "^1.19.0",
+		"cors": "^2.8.5",
 		"express": "^4.17.1",
 		"mongodb": "^3.3.3",
-		"mongoose": "^5.7.7",
-		"cors": "^2.8.5",
-		"body-parser": "^1.19.0"
+		"mongoose": "^5.7.7"
 	},
 	"engines": {
 		"node": "10.17.0"
@@ -27,6 +27,7 @@
 	],
 	"license": "MIT",
 	"devDependencies": {
-		"nodemon": "^2.0.2"
+		"nodemon": "^2.0.2",
+		"dotenv": "^8.2.0"
 	}
 }
