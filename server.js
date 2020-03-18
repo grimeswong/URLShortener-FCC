@@ -98,7 +98,19 @@ app.route('/api/shorturl/new').post(function(req, res) {
     }
   })
 
-});
+})
+
+app.get('/api/shorturl/:urlnum', function(req, res) {
+  console.log(typeof(req.params.urlnum));
+  // Need to cast to Number before query
+  URL.findOne({short_url: Number.parseInt(req.params.urlnum)}, function(err, result) {
+    if(err) {console.error(err)};
+
+    result !== null ?
+    console.log(`result = ${result}`)
+    : console.log("This URL couldn't be found!!!")
+  })
+})
 
 
 app.listen(port, function () {
