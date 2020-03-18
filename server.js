@@ -7,10 +7,7 @@ var bodyParser = require('body-parser');
 var dns = require('dns');
 var sha1 = require('sha1')
 require('dotenv').config();
-
-
 var cors = require('cors');
-
 var app = express();
 
 // Basic Configuration
@@ -23,7 +20,9 @@ mongoose.connect(process.env.DB_URI, { useNewUrlParser: true, useUnifiedTopology
   })
   .catch(error => console.error(`Cannot connect to the database due to ${error}`));
 
-  // Define Schema and setup Model
+  /**
+    * Define Schema and setup Model
+    **/
   var Schema = mongoose.Schema;
   var urlSchema = new Schema({  // Create Schema
     _id: {type: String, required: true},
@@ -52,9 +51,9 @@ app.route('/api/shorturl/new').post(function(req, res) {
   var trimURL = req.body.url.trim(); // trim the start and end white space or new lines
   var regex = /https?:\/\/(w{3}\.)?/g;  // replace the protocol and www prefix
   var sortedURL = trimURL.replace(regex, '');
-  console.log(JSON.stringify(sortedURL));
+  console.log(`sortedURL = ${JSON.stringify(sortedURL)}`);
   dns.lookup(sortedURL, function(err, address, family) { // need to take out the 'https://' or 'http://'
-    console.log(`error = ${err}`);  // error = null
+    console.error(`error = ${err}`);  // error = null
     console.log(`address = ${address}, family = ${family}`)
     if(err === null) {
 
@@ -70,13 +69,16 @@ app.route('/api/shorturl/new').post(function(req, res) {
             url: trimURL,
             short_url: sha1(trimURL)
           })
-          saveURL.save(function(err, newData) {
-           console.log("new URL has been save in MongoDB!!!");
-           res.json({ // Response with a shorturl
-             original_url: newData.url,
-             short_url: newData.short_url
-           })
-         })
+          saveURL.save(function(err, saveData) {
+            console.log("new URL has been saved in MongoDB!!!");
+            console.log(`saveData = ${saveData}`);
+            error!==null ? console.error(`error = ${err}`) :
+            res.json({ // Response with a shorturl
+              original_url: data.url,
+              short_url: data.short_url
+            })
+          })
+
        } else { //
           console.log('This URL has a record that saved previously');
           console.log(data);  // Data would be an array of results
