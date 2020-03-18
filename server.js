@@ -105,10 +105,8 @@ app.get('/api/shorturl/:urlnum', function(req, res) {
   // Need to cast to Number before query
   URL.findOne({short_url: Number.parseInt(req.params.urlnum)}, function(err, result) {
     if(err) {console.error(err)};
-
-    result !== null ?
-    console.log(`result = ${result}`)
-    : console.log("This URL couldn't be found!!!")
+    //a result return by query
+    result !== null ? res.redirect(`${result.url}`) : console.log("This URL couldn't be found!!!") // no result return by query
   })
 })
 
