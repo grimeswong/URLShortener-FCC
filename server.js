@@ -23,6 +23,7 @@ mongoose.connect(process.env.DB_URI, { useNewUrlParser: true, useUnifiedTopology
   })
   .catch(error => console.error(`Cannot connect to the database due to ${error}`));
 
+  // Define Schema and setup Model
   var Schema = mongoose.Schema;
   var urlSchema = new Schema({  // Create Schema
     _id: {type: String, required: true},
@@ -56,30 +57,36 @@ app.route('/api/shorturl/new').post(function(req, res) {
     console.log(`error = ${err}`);  // error = null
     console.log(`address = ${address}, family = ${family}`)
     if(err === null) {
-      // Response with a shorturl
 
-      // var saveURL = new URL({
-      //   _id: sha1(trimURL),
-      //   url: trimURL,
-      //   short_url: sha1(trimURL)
-      // })
-      //
-      // URL.find({url: trimURL}, function(err, data) {
-      //   if(err) {return console.error(err)}
-      //   console.log(`data length ${data}`);
-      // })
-      //
-      // saveURL.save(function(err, data) {
-      //   console.log(data);
-      //   res.json({
-      //     original_url: data.url,
-      //     short_url: data.short_url
-      //   })
-      // })
+      URL.find({url: trimURL}, function(err, data) { // Query DB whether the URL was saved previously
+        if(err) {return console.error(err)}
 
-      // Define Schema and setup Model
-      // store data in database with a hash ID
-      res.json({original_url: req.body.url})
+        if (JSON.stringify(data)===JSON.stringify([])) {
+          console.log('Couldn\'t find any URL relate to this, data will be saved !!!' );
+
+          // store data in database with a hash ID
+          var saveURL = new URL({
+            _id: sha1(trimURL),
+            url: trimURL,
+            short_url: sha1(trimURL)
+          })
+          saveURL.save(function(err, newData) {
+           console.log("new URL has been save in MongoDB!!!");
+           res.json({ // Response with a shorturl
+             original_url: newData.url,
+             short_url: newData.short_url
+           })
+         })
+       } else { //
+          console.log('This URL has a record that saved previously');
+          console.log(data);  // Data would be an array of results
+          res.json({ // Response with a shorturl of the first result
+              original_url: data[0].url,
+              short_url: data[0].short_url
+          })
+        }
+      })
+
     } else {
       // Response with a invalid url
       res.json({error: "invalid URL"});
