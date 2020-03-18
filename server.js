@@ -9,12 +9,13 @@ var sha1 = require('sha1')
 require('dotenv').config();
 var cors = require('cors');
 var app = express();
+var AutoIncrement = require('mongoose-sequence')(mongoose);
 
 // Basic Configuration
 var port = process.env.PORT || 3000;
 
 /** this project needs a db !! **/
-mongoose.connect(process.env.DB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+var connectDB = mongoose.connect(process.env.DB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(()=> {
     console.log("Database is connected successfully!");
   })
@@ -23,12 +24,14 @@ mongoose.connect(process.env.DB_URI, { useNewUrlParser: true, useUnifiedTopology
   /**
     * Define Schema and setup Model
     **/
-  var Schema = mongoose.Schema;
-  var urlSchema = new Schema({  // Create Schema
+
+  var urlSchema = new mongoose.Schema({  // Create Schema
     _id: {type: String, required: true},
     url: {type: String, required: true},
-    short_url: {type: String, required: true}
+    short_url: {type: Number},
   })
+  urlSchema.plugin(AutoIncrement, {id:'shorturl_seq', inc_field: 'short_url'});  // This plugin must be implemented before to create model
+
   var URL = mongoose.model("URL", urlSchema); // Create Model
 
 app.use(cors());
@@ -48,6 +51,7 @@ app.get('/', function(req, res){
 
 // your first API endpoint...
 app.route('/api/shorturl/new').post(function(req, res) {
+  console.log(res.host)
   var trimURL = req.body.url.trim(); // trim the start and end white space or new lines
   var regex = /https?:\/\/(w{3}\.)?/g;  // replace the protocol and www prefix
   var sortedURL = trimURL.replace(regex, '');
@@ -66,16 +70,15 @@ app.route('/api/shorturl/new').post(function(req, res) {
           // store data in database with a hash ID
           var saveURL = new URL({
             _id: sha1(trimURL),
-            url: trimURL,
-            short_url: sha1(trimURL)
+            url: trimURL
           })
           saveURL.save(function(err, saveData) {
             console.log("new URL has been saved in MongoDB!!!");
             console.log(`saveData = ${saveData}`);
-            error!==null ? console.error(`error = ${err}`) :
+            err!==null ? console.error(`error = ${err}`) :
             res.json({ // Response with a shorturl
-              original_url: data.url,
-              short_url: data.short_url
+              original_url: saveData.url,
+              short_url: saveData.short_url
             })
           })
 
